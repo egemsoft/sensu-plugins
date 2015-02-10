@@ -1,6 +1,6 @@
 #!/usr/bin/env ruby
 #
-# Simple Sensu File Exists Plugin
+# Sensu File Exists Plugin
 # ===
 #
 # Sometimes you just need a simple way to test if your alerting is functioning
@@ -18,7 +18,7 @@
 # And then set it ok again with:
 # rm /tmp/CRITICAL
 #
-# Copyright 2013 Mike Skovgaard <mikesk@gmail.com>
+# Copyright 2015 hba <hbasria@gmail.com>
 #
 # Released under the same terms as Sensu (the MIT license); see LICENSE
 # for details.
@@ -29,12 +29,14 @@ require 'sensu-plugin/check/cli'
 class CheckFileExists < Sensu::Plugin::Check::CLI
 
   option :prefix,
-	short: '-p PREFIX',
-	long: '--prefix DIR'
+	  short: '-p PREFIX',
+	  long: '--prefix DIR',
+    default: '/tmp/CRITICAL'
 
   option :suffix,
-	short: '-s SUFFIX',
-	long: '--suffix DIR'	
+	  short: '-s SUFFIX',
+	  long: '--suffix DIR',
+    default: ''
 
   option :format,
     short: '-f FORMAT',
@@ -51,24 +53,27 @@ class CheckFileExists < Sensu::Plugin::Check::CLI
 
 
   def run
-  	t = Time.now
-  	t2 = Time.now
+    t = Time.now
 
-  	if config[:tp]
-		t = Time.at(Time.now.to_i - (Time.now.to_i % (config[:tp].to_i*60)))
+    if config[:tp]
+      t = Time.at(Time.now.to_i - (Time.now.to_i % (config[:tp].to_i*60)))
   	end
 
-  	if config[:tz]
-		t = t.utc.strftime(config[:format])
-	else
-		t = t.localtime.strftime(config[:format])
+    if config[:tz]
+      t = t.utc.strftime(config[:format])
+	  else
+		  t = t.localtime.strftime(config[:format])
   	end 
 
-  	f = "#{config[:prefix]}#{t}#{config[:suffix]}" 	
+    if config[:tp] || config[:tz]
+      f = "#{config[:prefix]}#{t}*#{config[:suffix]}"
+    else
+      f = "#{config[:prefix]}*#{config[:suffix]}"
+    end      
     
-    if config[:prefix] && File.exists?(f)
+    if !Dir.glob(f).empty?
       ok "exists! #{f}"
-    elsif config[:unknown] && File.exists?(config[:unknown])
+    elsif config[:unknown] && !Dir.glob(f).empty?
       unknown "#{config[:unknown]} exists!"
     else
       critical "No test files exist #{f}"
