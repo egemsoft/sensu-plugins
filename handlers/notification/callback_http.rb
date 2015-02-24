@@ -34,7 +34,9 @@ class CallbackHttp < Sensu::Handler
 			uri=URI.parse(callback_url)
 			http = Net::HTTP.new(uri.host, uri.port)
 
-			puts {"host"=>uri.host, "port"=>uri.port, "path"=>uri.path}
+			uri_config={"host" => uri.host, "port" => uri.port, "path" => uri.path}
+			puts "URI is #{uri_config}"
+
 			response=http.post(uri.path,{'output' => output}.to_json,{"Content-Type" => "application/json","Accept" => "application/json"})
 			if response.code.to_i < 400
 				puts "success for callback url #{callback_url}"
