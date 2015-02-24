@@ -32,7 +32,7 @@ class CallbackHttp < Sensu::Handler
 
 		unless callback_url.nil?
 			puts "callback url is #{callback_url}/#{status}"
-			callback_url = URI("#{callback_url}/#{status}")
+			callback_url = "#{callback_url}/#{status}"
 			puts "#1"
 			uri=URI.parse(callback_url)
 			puts "#2"
