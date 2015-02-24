@@ -17,6 +17,10 @@ class CallbackHttp < Sensu::Handler
 		status = @event['check']['status']
 		kwargs = @event['check']['kwargs']
 
+		puts "output is #{output}"
+		puts "status is #{status}"
+		puts "kwargs is #{kwargs}"
+
 		if kwargs.has_key?('callback_url')
 			callback_url = kwargs['callback_url']
 		else
@@ -24,10 +28,13 @@ class CallbackHttp < Sensu::Handler
 		end
 
 		puts "callback url is #{callback_url}/#{status}"
+
 		unless callback_url.nil?
 			callback_url = URI("#{callback_url}/#{status}")
 			uri=URI.parse(callback_url)
 			http = Net::HTTP.new(uri.host, uri.port)
+
+			puts {"host"=>uri.host, "port"=>uri.port, "path"=>uri.path}
 			response=http.post(uri.path,{'output' => output}.to_json,{"Content-Type" => "application/json","Accept" => "application/json"})
 			if response.code.to_i < 400
 				puts "success for callback url #{callback_url}"
