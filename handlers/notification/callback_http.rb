@@ -33,17 +33,12 @@ class CallbackHttp < Sensu::Handler
 		unless callback_url.nil?
 			puts "callback url is #{callback_url}/#{status}"
 			callback_url = "#{callback_url}/#{status}"
-			puts "#1"
 			uri=URI.parse(callback_url)
-			puts "#2"
 			http = Net::HTTP.new(uri.host, uri.port)
-			puts "#3"
 			uri_config={"host" => uri.host, "port" => uri.port, "path" => uri.path}
 			puts "URI is #{uri_config}"
 
 			response=http.post(uri.path,{'output' => output}.to_json,{"Content-Type" => "application/json","Accept" => "application/json"})
-			puts "#4"
-			puts response
 			if response.code.to_i < 400
 				puts "success for callback url #{callback_url}"
 			else
