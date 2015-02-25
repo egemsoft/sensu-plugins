@@ -31,8 +31,10 @@ class CallbackHttp < Sensu::Handler
 		
 
 		unless callback_url.nil?
-			puts "callback url is #{callback_url}/#{status}"
-			callback_url = "#{callback_url}/#{status}/"
+			unless callback_url.ends_with? "/"
+				callback_url+="/"
+			callback_url+="#{status}/"
+			puts "callback url is #{callback_url}"
 			uri=URI.parse(callback_url)
 			http = Net::HTTP.new(uri.host, uri.port)
 			uri_config={"host" => uri.host, "port" => uri.port, "path" => uri.path}
